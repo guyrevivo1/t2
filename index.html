@@ -6,47 +6,40 @@
 <title>Loader</title>
 <link href="https://fonts.googleapis.com/css2?family=Handjet&display=swap" rel="stylesheet">
 <style>
-  html, body {
-    margin:0; padding:0; height:100%; width:100%;
-    display:flex; align-items:center; justify-content:center;
-    overflow:hidden; font-family:Arial, sans-serif;
-    background: linear-gradient(-45deg,#001F3F,#0059ff,#001F3F,#00aaff);
-    background-size:400% 400%;
-    animation: gradientShift 10s ease infinite;
-  }
+html, body {
+  margin:0; padding:0; height:100%; width:100%;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; font-family:Arial, sans-serif;
+  background: linear-gradient(-45deg,#001F3F,#0059ff,#001F3F,#00aaff);
+  background-size:400% 400%;
+  animation: gradientShift 10s ease infinite;
+}
+@keyframes gradientShift {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+#loader {
+  position:relative; text-align:center; width:100%;
+  color:white; font-size:2.2rem;
+}
+.step {
+  position:absolute; left:0; right:0; margin:0 auto;
+  opacity:0; transition: opacity 0.8s ease, transform 0.8s ease;
+  transform:translateY(6px);
+}
+.visible { opacity:1; transform:translateY(0); }
+#final-text {
+  font-family:'Handjet',sans-serif; font-weight:700; font-size:2.7rem;
+  opacity:0; transform:scale(0.9); color:#007bff;
+}
+#final-text.enter { opacity:1; animation:growIn 1.3s ease forwards; }
+#final-text.active { animation:colorBreath 2s ease-in-out infinite alternate; }
 
-  @keyframes gradientShift {
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
-  }
+@keyframes growIn {0%{transform:scale(0.9);opacity:0}60%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes colorBreath {0%{color:#007bff;transform:scale(1)}100%{color:#ffffff;transform:scale(1.07)}}
 
-  #loader {
-    position:relative; text-align:center; width:100%;
-    color:white; font-size:2.2rem;
-  }
-
-  .step {
-    position:absolute; left:0; right:0; margin:0 auto;
-    opacity:0; transition: opacity 0.8s ease, transform 0.8s ease;
-    transform:translateY(6px);
-  }
-
-  .visible { opacity:1; transform:translateY(0); }
-
-  #final-text {
-    font-family:'Handjet',sans-serif; font-weight:700; font-size:2.7rem;
-    opacity:0; transform:scale(0.9); color:#007bff;
-  }
-
-  #final-text.enter { opacity:1; animation:growIn 1.3s ease forwards; }
-  #final-text.active { animation:colorBreath 2s ease-in-out 1 alternate; } /* נשימה פעם אחת */
-
-  @keyframes growIn {0%{transform:scale(0.9);opacity:0}60%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:1}}
-  @keyframes colorBreath {0%{color:#007bff;transform:scale(1)}100%{color:#ffffff;transform:scale(1.07)}}
-
-  @media (max-width:600px) { #loader{font-size:1.8rem} #final-text{font-size:1.7rem} }
-
+@media (max-width:600px) { #loader{font-size:1.8rem} #final-text{font-size:1.7rem} }
 </style>
 </head>
 <body>
@@ -66,7 +59,10 @@
     document.getElementById("final-text")
   ];
   const loader = document.getElementById("loader");
+  const final = document.getElementById("final-text");
   let i=0;
+  let siteLoaded = false;
+  let breathCount = 0;
 
   function showStep(){
     if(i<steps.length-1){
@@ -76,23 +72,31 @@
       setTimeout(showStep,1200);
     } else {
       if(steps[i-1]) steps[i-1].classList.remove("visible");
-      const final = steps[i];
       final.classList.add("enter");
-      setTimeout(()=>{
-        final.classList.add("active");
-        // מחכים לפחות 1.5 שניות לנשימה לפני הסתרת הלודר
-        setTimeout(()=>{
-          // רק אחרי טעינת האתר
-          window.addEventListener('load',()=>{
-            loader.style.transition='opacity 0.6s ease';
-            loader.style.opacity='0';
-            setTimeout(()=>loader.style.display='none',700);
-          });
-        },1500);
-      },500);
+      final.style.opacity = 1;
+      breath(); // מתחילים נשימות
     }
   }
+
+  function breath(){
+    final.classList.add("active");
+    breathCount++;
+    setTimeout(()=>{
+      if(siteLoaded && breathCount>=1){
+        loader.style.transition='opacity 0.6s ease';
+        loader.style.opacity='0';
+        setTimeout(()=>loader.style.display='none',700);
+      } else {
+        breath(); // נשימה נוספת אם האתר עדיין לא נטען
+      }
+    },2000); // אורך נשימה אחת
+  }
+
   showStep();
+
+  window.addEventListener('load',()=>{
+    siteLoaded = true;
+  });
 })();
 </script>
 </body>
