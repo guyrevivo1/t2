@@ -4,27 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loader</title>
-<!-- פונטים -->
-<link href="https://fonts.googleapis.com/css2?family=Handjet&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Handjet&display=swap" rel="stylesheet">
 <style>
   body, html {
     margin: 0;
     padding: 0;
     height: 100%;
     width: 100%;
+    background: #0b1a33; /* כחול כהה */
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     direction: rtl;
-    background: #0a0f2a; /* כחול כהה */
-    font-family: 'Rubik', sans-serif;
   }
 
   #loader {
     position: relative;
     text-align: center;
     color: white;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 2.375rem;
+    font-weight: 600;
     width: 100%;
   }
 
@@ -33,7 +34,6 @@
     width: 100%;
     opacity: 0;
     transition: opacity 0.8s ease;
-    font-size: 2.2rem;
   }
 
   .visible {
@@ -43,7 +43,7 @@
   #final-text {
     font-size: 2.4rem;
     font-weight: 700;
-    color: #ffffff;
+    color: #007bff;
     transform: scale(0.9);
     opacity: 0;
     font-family: 'Handjet', sans-serif;
@@ -65,13 +65,17 @@
   }
 
   @keyframes colorBreath {
-    0% { color: #ffffff; transform: scale(1); }
-    100% { color: #007bff; transform: scale(1.07); }
+    0% { color: #007bff; transform: scale(1); }
+    100% { color: #ffffff; transform: scale(1.07); }
   }
 
   @media (max-width: 600px) {
-    .step { font-size: 1.6rem; }
-    #final-text { font-size: 1.8rem; }
+    #loader {
+      font-size: 1.775rem;
+    }
+    #final-text {
+      font-size: 1.7rem;
+    }
   }
 </style>
 </head>
@@ -103,17 +107,16 @@
           setTimeout(() => el.classList.add("active"), 1400);
         }
       }, delay);
-      delay += 1200; // זמן בין השלבים
+      delay += 1200;
     });
 
-    // אפשרות להסיר את הלודר אחרי טעינת האתר
+    // הסתרה רק אחרי שהעמוד נטען
     window.addEventListener('load', () => {
-      const loader = document.getElementById('loader');
       setTimeout(() => {
-        loader.style.transition = "opacity 0.8s ease";
-        loader.style.opacity = 0;
-        setTimeout(() => loader.style.display = 'none', 800);
-      }, 4000); // הלודר נשאר 4 שניות לפחות
+        document.getElementById("loader").style.opacity = "0";
+        document.getElementById("loader").style.transition = "opacity 1s ease";
+        setTimeout(() => document.getElementById("loader").style.display = "none", 1000);
+      }, 500); // רגע אחרי שהטעינה נגמרה
     });
   </script>
 </body>
