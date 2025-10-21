@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loader</title>
+<!-- קישור לפונט Handjet -->
+<link href="https://fonts.googleapis.com/css2?family=Handjet&display=swap" rel="stylesheet">
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    direction: rtl;
+  }
+
+  #loader {
+    position: relative;
+    text-align: center;
+    color: white;
+    font-family: "Segoe UI", Arial, sans-serif; /* שלבים בעברית */
+    font-size: 2.375rem; /* גדול יותר */
+    font-weight: 600;
+    width: 100%;
+  }
+
+  .step {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .visible {
+    opacity: 1;
+  }
+
+  #final-text {
+    font-size: 2.275rem;
+    font-weight: 700;
+    color: #007bff;
+    transform: scale(0.9);
+    opacity: 0;
+    font-family: 'Handjet', sans-serif; /* רק האחרון עם Handjet */
+  }
+
+  #final-text.enter {
+    opacity: 1;
+    animation: growIn 1.3s ease forwards;
+  }
+
+  #final-text.active {
+    animation: colorBreath 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes growIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    60% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes colorBreath {
+    0% { color: #007bff; transform: scale(1); }
+    100% { color: #ffffff; transform: scale(1.07); }
+  }
+
+  @media (max-width: 600px) {
+    #loader {
+      font-size: 1.775rem;
+    }
+    #final-text {
+      font-size: 1.7rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div id="loader">
+    <div id="step1" class="step">טוען עיצוב...</div>
+    <div id="step2" class="step">טוען טפסים...</div>
+    <div id="step3" class="step">מארגן אתר...</div>
+    <div id="final-text" class="step">MADE BY GUY REVIVO</div>
+  </div>
+
+  <script>
+    const steps = [
+      document.getElementById("step1"),
+      document.getElementById("step2"),
+      document.getElementById("step3"),
+      document.getElementById("final-text")
+    ];
+
+    let delay = 0;
+    steps.forEach((el, i) => {
+      setTimeout(() => {
+        if (i < steps.length - 1) {
+          el.classList.add("visible");
+          if (i > 0) steps[i - 1].classList.remove("visible");
+        } else {
+          steps[i - 1].classList.remove("visible");
+          el.classList.add("enter");
+          setTimeout(() => el.classList.add("active"), 1400);
+        }
+      }, delay);
+      delay += 1200;
+    });
+  </script>
+</body>
+</html>
