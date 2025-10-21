@@ -1,123 +1,88 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Loader</title>
 <link href="https://fonts.googleapis.com/css2?family=Handjet&display=swap" rel="stylesheet">
 <style>
-  body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    background: #0b1a33; /* כחול כהה */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    direction: rtl;
-  }
-
-  #loader {
-    position: relative;
-    text-align: center;
-    color: white;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 2.375rem;
-    font-weight: 600;
-    width: 100%;
-  }
-
-  .step {
-    position: absolute;
-    width: 100%;
-    opacity: 0;
-    transition: opacity 0.8s ease;
-  }
-
-  .visible {
-    opacity: 1;
-  }
-
-  #final-text {
-    font-size: 2.4rem;
-    font-weight: 700;
-    color: #007bff;
-    transform: scale(0.9);
-    opacity: 0;
-    font-family: 'Handjet', sans-serif;
-  }
-
-  #final-text.enter {
-    opacity: 1;
-    animation: growIn 1.3s ease forwards;
-  }
-
-  #final-text.active {
-    animation: colorBreath 2s ease-in-out infinite alternate;
-  }
-
-  @keyframes growIn {
-    0% { transform: scale(0.9); opacity: 0; }
-    60% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  @keyframes colorBreath {
-    0% { color: #007bff; transform: scale(1); }
-    100% { color: #ffffff; transform: scale(1.07); }
-  }
-
-  @media (max-width: 600px) {
-    #loader {
-      font-size: 1.775rem;
-    }
-    #final-text {
-      font-size: 1.7rem;
-    }
-  }
+  html,body{height:100%;margin:0;background:#0b1a33;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  #loader{position:relative;text-align:center;color:#fff;font-family:"Segoe UI",Arial, sans-serif;font-size:2.375rem;width:100%;max-width:900px}
+  .step{position:absolute;left:0;right:0;margin:0 auto;opacity:0;transition:opacity .6s ease,transform .6s ease;transform:translateY(6px);width:100%;text-align:center}
+  .visible{opacity:1;transform:translateY(0)}
+  #final-text{font-family:'Handjet',sans-serif;font-size:2.4rem;font-weight:700;color:#007bff;transform:scale(.95);opacity:0}
+  #final-text.enter{opacity:1;animation:growIn 1.1s cubic-bezier(.2,.9,.3,1) forwards}
+  #final-text.active{animation:colorBreath 2s ease-in-out infinite alternate}
+  @keyframes growIn{0%{transform:scale(.95);opacity:0}60%{transform:scale(1.06);opacity:1}100%{transform:scale(1);opacity:1}}
+  @keyframes colorBreath{0%{color:#007bff;transform:scale(1)}100%{color:#ffffff;transform:scale(1.06)}}
+  @media (max-width:600px){#loader{font-size:1.75rem}#final-text{font-size:1.6rem}}
 </style>
 </head>
 <body>
-  <div id="loader">
+  <div id="loader" aria-hidden="false">
     <div id="step1" class="step">טוען עיצוב...</div>
     <div id="step2" class="step">טוען טפסים...</div>
     <div id="step3" class="step">מארגן אתר...</div>
     <div id="final-text" class="step">MADE BY GUY&RAZ</div>
   </div>
 
-  <script>
-    const steps = [
-      document.getElementById("step1"),
-      document.getElementById("step2"),
-      document.getElementById("step3"),
-      document.getElementById("final-text")
-    ];
+<script>
+(function(){
+  const steps = [
+    document.getElementById('step1'),
+    document.getElementById('step2'),
+    document.getElementById('step3'),
+    document.getElementById('final-text')
+  ];
+  const loader = document.getElementById('loader');
 
-    let delay = 0;
-    steps.forEach((el, i) => {
-      setTimeout(() => {
-        if (i < steps.length - 1) {
-          el.classList.add("visible");
-          if (i > 0) steps[i - 1].classList.remove("visible");
-        } else {
-          steps[i - 1].classList.remove("visible");
-          el.classList.add("enter");
-          setTimeout(() => el.classList.add("active"), 1400);
-        }
-      }, delay);
-      delay += 1200;
-    });
+  const stepDuration = 1200; //ms between step starts
+  const lastEnterDelay = 1400; //ms until last becomes "active" breathing
+  const totalSteps = steps.length;
+  const fullSequenceTime = stepDuration * (totalSteps - 1) + lastEnterDelay + 200; // safe pad
 
-    // הסתרה רק אחרי שהעמוד נטען
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById("loader").style.opacity = "0";
-        document.getElementById("loader").style.transition = "opacity 1s ease";
-        setTimeout(() => document.getElementById("loader").style.display = "none", 1000);
-      }, 500); // רגע אחרי שהטעינה נגמרה
-    });
-  </script>
+  let seqDone = false;
+  let pageLoaded = false;
+  const maxWait = 15000; // safety fallback: 15s
+
+  // schedule the step sequence
+  steps.forEach((el, i) => {
+    const start = i * stepDuration;
+    setTimeout(() => {
+      if (i < steps.length - 1) {
+        el.classList.add('visible');
+        if (i > 0) steps[i-1].classList.remove('visible');
+      } else {
+        // last: remove previous, animate enter then active (breath)
+        if (steps[i-1]) steps[i-1].classList.remove('visible');
+        el.classList.add('enter');
+        setTimeout(() => el.classList.add('active'), lastEnterDelay);
+      }
+    }, start);
+  });
+
+  // mark sequence done after fullSequenceTime
+  setTimeout(() => { seqDone = true; tryHide(); }, fullSequenceTime);
+
+  // page load listener
+  window.addEventListener('load', () => { pageLoaded = true; tryHide(); });
+
+  // safety: don't get stuck forever
+  setTimeout(() => { seqDone = true; pageLoaded = true; tryHide(); }, maxWait);
+
+  function tryHide(){
+    if (!seqDone || !pageLoaded) return;
+    // fade out loader smoothly
+    loader.style.transition = 'opacity 600ms ease, visibility 600ms';
+    loader.style.opacity = '0';
+    loader.style.visibility = 'hidden';
+    loader.setAttribute('aria-hidden','true');
+    setTimeout(()=> loader.style.display = 'none', 700);
+  }
+
+  // if already loaded before script runs
+  if (document.readyState === 'complete') pageLoaded = true;
+})();
+</script>
 </body>
 </html>
