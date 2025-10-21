@@ -4,63 +4,96 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loader</title>
+<link href="https://fonts.googleapis.com/css2?family=Handjet&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Handjet:wght@600&display=swap');
+  html, body {
+    margin:0; padding:0; height:100%; width:100%;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden; font-family:Arial, sans-serif;
+    background: linear-gradient(-45deg,#001F3F,#0059ff,#001F3F,#00aaff);
+    background-size:400% 400%;
+    animation: gradientShift 10s ease infinite;
+  }
 
-  body {
-    margin: 0;
-    background-color: #001F3F;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    overflow: hidden;
-    font-family: 'Handjet', sans-serif;
+  @keyframes gradientShift {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
   }
 
   #loader {
-    text-align: center;
-    color: white;
-    font-size: 22px;
-    animation: colorChange 2s infinite alternate;
+    position:relative; text-align:center; width:100%;
+    color:white; font-size:2.2rem;
   }
 
-  @keyframes colorChange {
-    from { color: #ffffff; }
-    to { color: #009dff; }
+  .step {
+    position:absolute; left:0; right:0; margin:0 auto;
+    opacity:0; transition: opacity 0.8s ease, transform 0.8s ease;
+    transform:translateY(6px);
   }
 
-  #finalText {
-    display: none;
-    font-size: 28px;
-    color: #ffffff;
-    animation: grow 1.5s ease-in-out forwards, colorChange 2s infinite alternate;
+  .visible { opacity:1; transform:translateY(0); }
+
+  #final-text {
+    font-family:'Handjet',sans-serif; font-weight:700; font-size:2.7rem;
+    opacity:0; transform:scale(0.9); color:#007bff;
   }
 
-  @keyframes grow {
-    from { transform: scale(0.6); opacity: 0; }
-    to { transform: scale(1.2); opacity: 1; }
-  }
+  #final-text.enter { opacity:1; animation:growIn 1.3s ease forwards; }
+  #final-text.active { animation:colorBreath 2s ease-in-out 1 alternate; } /* נשימה פעם אחת */
+
+  @keyframes growIn {0%{transform:scale(0.9);opacity:0}60%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:1}}
+  @keyframes colorBreath {0%{color:#007bff;transform:scale(1)}100%{color:#ffffff;transform:scale(1.07)}}
+
+  @media (max-width:600px) { #loader{font-size:1.8rem} #final-text{font-size:1.7rem} }
+
 </style>
 </head>
 <body>
-  <div id="loader"></div>
-  <script>
-    const loader = document.getElementById('loader');
-    const texts = ["טוען עיצוב...", "טוען טפסים...", "מארגן אתר..."];
-    let i = 0;
+<div id="loader">
+  <div id="step1" class="step">טוען עיצוב...</div>
+  <div id="step2" class="step">טוען טפסים...</div>
+  <div id="step3" class="step">מארגן אתר...</div>
+  <div id="final-text" class="step">MADE BY GUY&RAZ</div>
+</div>
 
-    function showNext() {
-      if (i < texts.length) {
-        loader.textContent = texts[i];
-        i++;
-        setTimeout(showNext, 1200);
-      } else {
-        loader.innerHTML = "<div id='finalText'>MADE BY GUY&RAZ</div>";
-        document.getElementById('finalText').style.display = 'block';
-      }
+<script>
+(function(){
+  const steps = [
+    document.getElementById("step1"),
+    document.getElementById("step2"),
+    document.getElementById("step3"),
+    document.getElementById("final-text")
+  ];
+  const loader = document.getElementById("loader");
+  let i=0;
+
+  function showStep(){
+    if(i<steps.length-1){
+      if(i>0) steps[i-1].classList.remove("visible");
+      steps[i].classList.add("visible");
+      i++;
+      setTimeout(showStep,1200);
+    } else {
+      if(steps[i-1]) steps[i-1].classList.remove("visible");
+      const final = steps[i];
+      final.classList.add("enter");
+      setTimeout(()=>{
+        final.classList.add("active");
+        // מחכים לפחות 1.5 שניות לנשימה לפני הסתרת הלודר
+        setTimeout(()=>{
+          // רק אחרי טעינת האתר
+          window.addEventListener('load',()=>{
+            loader.style.transition='opacity 0.6s ease';
+            loader.style.opacity='0';
+            setTimeout(()=>loader.style.display='none',700);
+          });
+        },1500);
+      },500);
     }
-    showNext();
-  </script>
+  }
+  showStep();
+})();
+</script>
 </body>
 </html>
