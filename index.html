@@ -9,7 +9,7 @@
 html, body {
   margin:0; padding:0; height:100%; width:100%;
   display:flex; align-items:center; justify-content:center;
-  overflow:hidden; font-family:Arial, sans-serif;
+  overflow:hidden;
   background: linear-gradient(-45deg, #001F3F, #0059ff, #001F3F, #00aaff);
   background-size: 400% 400%;
   animation: gradientShift 10s ease infinite;
@@ -23,7 +23,7 @@ html, body {
 #loader {
   width:450px;
   max-width:100%;
-  min-height:600px; /* גובה מינימום, מתגמש במסכים קטנים */
+  min-height:600px;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -35,11 +35,12 @@ html, body {
 
 .step {
   opacity:0;
+  margin:10px 0;
   transition: opacity 0.8s ease, transform 0.8s ease;
-  transform:translateY(6px);
+  transform: translateY(6px);
 }
 
-.visible { opacity:1; transform:translateY(0); margin: 10px 0; }
+.visible { opacity:1; transform:translateY(0); }
 
 #final-text {
   font-family:'Handjet',sans-serif;
@@ -109,7 +110,7 @@ html, body {
       if(steps[i-1]) steps[i-1].classList.remove("visible");
       final.classList.add("enter");
       final.style.opacity = 1;
-      breath(); // מתחילים נשימות
+      breath();
     }
   }
 
@@ -122,16 +123,14 @@ html, body {
         loader.style.opacity='0';
         setTimeout(()=>loader.style.display='none',700);
       } else {
-        breath(); // נשימה נוספת אם האתר עדיין לא נטען
+        breath();
       }
-    },2000); // אורך נשימה אחת
+    },2000);
   }
 
   showStep();
 
-  window.addEventListener('load',()=>{
-    siteLoaded = true;
-  });
+  window.addEventListener('load',()=>{ siteLoaded = true; });
 })();
 </script>
 </body>
